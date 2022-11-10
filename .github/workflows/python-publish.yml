@@ -17,7 +17,8 @@ permissions:
 
 jobs:
   deploy:
-
+  
+    environment: develop
     runs-on: ubuntu-latest
 
     steps:
