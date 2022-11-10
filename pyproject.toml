@@ -18,11 +18,11 @@ dynamic = ["dependencies"]
 dependencies = {file = ["requirements/requirements.txt"]}
 
 [project.urls]
-"Homepage" = "https://github.com/willmclaren/json-schema-to-mappings"
-"Bug Tracker" = "https://github.com/willmclaren/json-schema-to-mappings/issues"
+"Homepage" = "https://github.com/willmclaren/jsonschematomappings"
+"Bug Tracker" = "https://github.com/willmclaren/jsonschematomappings/issues"
 
 [project.scripts]
-jsonschematomappings = "json_schema_to_mappings:main"
+jsonschematomappings = "jsonschematomappings:main"
 
 [tool.isort]
 profile = "black"
