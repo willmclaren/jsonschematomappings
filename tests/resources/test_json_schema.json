@@ -1,0 +1,689 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "0.1.6",
+    "title": "Variant Details",
+    "description": "The annotations for the listed variant",
+    "type": "object",
+    "properties": {
+        "modelVersion": {
+            "description": "The version of the schema used in this file",
+            "type": "string",
+            "const": "0.1.6"
+        },
+        "variantUID": {
+            "description": "Unique Identifier for the small variant",
+            "type": "string"
+        },
+        "domain": {
+            "description": "Assigned variant domain as defined by Genomics England",
+            "type": "string",
+            "enum": [
+                "DOMAIN1",
+                "DOMAIN2",
+                "DOMAIN3",
+                "DOMAIN4",
+                "NONE"
+            ]
+        },
+        "tier": {
+            "description": "Assigned variant tier as defined by Genomics England",
+            "type": "string",
+            "enum": [
+                "NONE",
+                "TIER1",
+                "TIER2",
+                "TIER3",
+                "TIER4",
+                "TIER5",
+                "TIERA",
+                "TIERB"
+            ]
+        },
+        "sampleType": {
+            "description": "Defines whether the small variant reported is considered to be a somatic or germline finding",
+            "type": "string",
+            "enum": [
+                "germline",
+                "somatic",
+                "unknown"
+            ]
+        },
+        "variantCategory": {
+            "description": "Defines whether the small variant reported is considered to be a somatic or germline finding",
+            "type": "string",
+            "enum": [
+                "small",
+                "structural",
+                "cnv"
+            ]
+        },
+        "qualityScore": {
+            "description": "Quality score reported by variant caller",
+            "type": "number"
+        },
+        "TINC": {
+            "description": "Indicates the predicted origin of this variant",
+            "type": "string",
+            "enum": [
+                "germline",
+                "somatic",
+                "unknown"
+            ]
+        },
+        "assembly": {
+            "description": "The reference genome assembly",
+            "type": "string",
+            "enum": [
+                "GRCh38",
+                "GRCh37"
+            ]
+        },
+        "chromosome": {
+            "description": "Chromosome",
+            "type": "string"
+        },
+        "start": {
+            "description": "Start of the physical location of the chromosome",
+            "type": "integer"
+        },
+        "end": {
+            "description": "End of the physical location of the chromosome",
+            "type": "integer"
+        },
+        "size": {
+            "description": "Size of the Variant (Structural only)",
+            "type": "integer"
+        },
+        "frame": {
+            "description": "Frame of the Variant (Structural only)",
+            "type": "string"
+        },
+        "smallVariantAllele": {
+            "description": "Small Variant Coordinates",
+            "type": "object",
+            "properties": {
+                "assembly": {
+                    "description": "The reference genome assembly",
+                    "type": "string",
+                    "enum": [
+                        "GRCh38",
+                        "GRCh37"
+                    ]
+                },
+                "chromosome": {
+                    "description": "Chromosome",
+                    "type": "string"
+                },
+                "position": {
+                    "description": "Genomic position",
+                    "type": "integer"
+                },
+                "reference": {
+                    "description": "The reference bases",
+                    "type": "string"
+                },
+                "alternate": {
+                    "description": "The alternate bases",
+                    "type": "string"
+                },
+                "alleleType": {
+                    "description": "Small variant allele type",
+                    "type": "string",
+                    "enum": [
+                        "snv",
+                        "mnv",
+                        "indel"
+                    ]
+                }
+            },
+            "required": [
+                "assembly",
+                "chromosome",
+                "position",
+                "reference",
+                "alternate",
+                "alleleType"
+            ],
+            "additionalProperties": false
+        },
+        "structuralVariantAllele": {
+            "description": "Structural Variant Coordinates",
+            "type": "object",
+            "properties": {
+                "assembly": {
+                    "description": "The reference genome assembly",
+                    "type": "string",
+                    "enum": [
+                        "GRCh38",
+                        "GRCh37"
+                    ]
+                },
+                "chromosome": {
+                    "description": "Chromosome",
+                    "type": "string"
+                },
+                "start": {
+                    "description": "Start of the physical location of the chromosome",
+                    "type": "integer"
+                },
+                "end": {
+                    "description": "End of the physical location of the chromosome",
+                    "type": "integer"
+                },
+                "xCoord1Start": {
+                    "description": "Relative position of the chromosome start, offset for graphing purposes",
+                    "type": "integer"
+                },
+                "xCoord1End": {
+                    "description": "Relative position of the chromosome start, offset for graphing purposes",
+                    "type": "integer"
+                },
+                "ciStart": {
+                    "description": "Start of Confidence Interval",
+                    "$ref": "#/$defs/confidenceInterval"
+                },
+                "ciEnd": {
+                    "description": "End of Confidence Interval",
+                    "$ref": "#/$defs/confidenceInterval"
+                },
+                "alleleType": {
+                    "description": "Structural Variant type",
+                    "type": "string",
+                    "enum": [
+                        "ins",
+                        "dup",
+                        "inv",
+                        "amplification",
+                        "deletion",
+                        "dup_tandem",
+                        "del_me",
+                        "ins_me",
+                        "chromosomal_rearrangement",
+                        "loh"
+                    ]
+                },
+                "numberOfCopies": {
+                    "description": "Number of copies for CNV variants",
+                    "type": "integer"
+                },
+                "secondaryAssembly": {
+                    "description": "The second reference genome assembly when the structural variant is a Chromosome Rearrangment",
+                    "type": "string",
+                    "enum": [
+                        "GRCh38",
+                        "GRCh37"
+                    ]
+                },
+                "secondaryChromosome": {
+                    "description": "The second chromosome when the structural variant is a Chromosome Rearrangment",
+                    "type": "string"
+                },
+                "secondaryStart": {
+                    "description": "Start of the physical location of the second chromosome when the structural variant is a Chromosome Rearrangment",
+                    "type": "integer"
+                },
+                "secondaryEnd": {
+                    "description": "End of the physical location of the second hromosome when the structural variant is a Chromosome Rearrangment",
+                    "type": "integer"
+                },
+                "xCoord2Start": {
+                    "description": "Relative position of the chromosome start, offset for graphing purposes",
+                    "type": "integer"
+                },
+                "xCoord2End": {
+                    "description": "Relative position of the chromosome start, offset for graphing purposes",
+                    "type": "integer"
+                },
+                "secondaryCIStart": {
+                    "description": "Start of second Confidence Interval when the structural variant is a Chromosome Rearrangment",
+                    "$ref": "#/$defs/confidenceInterval"
+                },
+                "secondaryCIEnd": {
+                    "description": "End of second Confidence Interval when the structural variant is a Chromosome Rearrangment",
+                    "$ref": "#/$defs/confidenceInterval"
+                },
+                "orientation": {
+                    "description": "Describes the orientation of a Chromosome Rearrangement",
+                    "type": "string",
+                    "enum": [
+                        "start_start",
+                        "start_end",
+                        "end_end"
+                    ]
+                },
+                "cytoband": {
+                    "description": "Describes the orientation of a Chromosome Rearrangement",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "assembly",
+                "chromosome",
+                "start",
+                "end",
+                "alleleType"
+            ],
+            "additionalProperties": false
+        },
+        "sampleVariants": {
+            "description": "Sample Variants",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "sampleID": {
+                        "description": "Sample ID",
+                        "type": "string"
+                    },
+                    "zygosity": {
+                        "description": "Genotype for this variant",
+                        "type": "string",
+                        "enum": [
+                            "reference_homozygous",
+                            "heterozygous",
+                            "alternate_homozygous",
+                            "missing",
+                            "half_missing_reference",
+                            "half_missing_alternate",
+                            "alternate_hemizigous",
+                            "reference_hemizigous",
+                            "unk",
+                            "na"
+                        ]
+                    },
+                    "depthTotal": {
+                        "description": "Total number of reads covering this position",
+                        "type": "integer"
+                    },
+                    "depthReference": {
+                        "description": "Number of reads supporting the Ref allele",
+                        "type": "integer"
+                    },
+                    "depthAlternate": {
+                        "description": "Number of reads supporting the Alt allele",
+                        "type": "integer"
+                    },
+                    "sampleVariantAlleleFrequency": {
+                        "description": "Fraction of reads supporting the Alt allele",
+                        "type": "number"
+                    },
+                    "pairedRead": {
+                        "description": "Number of paired reads supporting the variant",
+                        "type": "string"
+                    },
+                    "splitRead": {
+                        "description": "Number of split reads supporting the variant",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "sampleID",
+                    "zygosity"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "GELFilters": {
+            "description": "GEL Filter",
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/filter"
+            }
+        },
+        "VCFFilters": {
+            "description": "VCF Filter",
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/filter"
+            }
+        },
+        "genes": {
+            "description": "Gene",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "ensemblGeneId": {
+                        "description": "Ensembl identifier for the feature",
+                        "type": "string"
+                    },
+                    "geneName": {
+                        "description": "The HUGO Gene Nomenclature Committee (HGNC) gene symbol",
+                        "type": "string"
+                    },
+                    "displayGene": {
+                        "description": "Selected gene for default display",
+                        "type": "boolean"
+                    },
+                    "domain": {
+                        "description": "Assigned variant domain as defined by Genomics England",
+                        "type": "string",
+                        "enum": [
+                            "DOMAIN1",
+                            "DOMAIN2",
+                            "DOMAIN3",
+                            "DOMAIN4",
+                            "NONE"
+                        ]
+                    },
+                    "tier": {
+                        "description": "Assigned variant tier as defined by Genomics England",
+                        "type": "string",
+                        "enum": [
+                            "NONE",
+                            "TIER1",
+                            "TIER2",
+                            "TIER3",
+                            "TIER4",
+                            "TIER5",
+                            "TIERA",
+                            "TIERB"
+                        ]
+                    },
+                    "modeOfAction": {
+                        "description": "Gene mode of action in cancer",
+                        "type": "string",
+                        "enum": [
+                            "both",
+                            "oncogene",
+                            "tumor_suppressor_gene"
+                        ]
+                    },
+                    "cancerGeneCensus": {
+                        "description": "Indicator if the gene is present in the Cancer Gene Census",
+                        "type": "boolean"
+                    },
+                    "natTestDir": {
+                        "description": "Indicator if the gene is present in the National Test Directory",
+                        "type": "boolean"
+                    },
+                    "genePanels": {
+                        "description": "Gene Panels",
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "panelIdentifier": {
+                                    "description": "Unique ID for the gene panel",
+                                    "type": "string"
+                                },
+                                "panelName": {
+                                    "description": "Panel name used",
+                                    "type": "string"
+                                },
+                                "panelGroup": {
+                                    "description": "Panel group used",
+                                    "type": "string"
+                                },
+                                "panelVersion": {
+                                    "description": "Panel version used",
+                                    "type": "string"
+                                },
+                                "source": {
+                                    "description": "source i.e, PanelApp or National Test Directory",
+                                    "type": "string"
+                                },
+                                "rating": {
+                                    "description": "Confidence level that this gene should be used for interpretation",
+                                    "type": "integer"
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    },
+                    "transcripts": {
+                        "description": "Transcripts",
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "ensemblTranscriptId": {
+                                    "description": "Unique Identifier for the transcript",
+                                    "type": "string"
+                                },
+                                "ensemblProteinId": {
+                                    "description": "Ensembl Protein ID",
+                                    "type": "string"
+                                },
+                                "displayTranscript": {
+                                    "description": "Selected transcript for default display",
+                                    "type": "boolean"
+                                },
+                                "hgvsc": {
+                                    "description": "HGVS cds change",
+                                    "type": "string"
+                                },
+                                "hgvsp": {
+                                    "description": "HGVS protein change",
+                                    "type": "string"
+                                },
+                                "impactedRegion": {
+                                    "description": "Impacted region",
+                                    "type": "string",
+                                    "enum": [
+                                        "full transcript",
+                                        "partial coding sequence",
+                                        "partial non-coding sequence",
+                                        "N/A"
+                                    ]
+                                },
+                                "biotype": {
+                                    "description": "The type of transcript",
+                                    "type": "string"
+                                },
+                                "consequence": {
+                                    "description": "Consequence",
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "name": {
+                                                "description": "Consequence SO term",
+                                                "type": "string"
+                                            },
+                                            "additionalProperties": false
+                                        }
+                                    }
+                                },
+                                "exonOverlap": {
+                                    "description": "Exon that this variant overlaps with in this transcript",
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "number": {
+                                                "description": "Exon that this variant overlaps with in this transcript. Includes total exon count as denominator",
+                                                "type": "string"
+                                            },
+                                            "additionalProperties": false
+                                        }
+                                    }
+                                }
+                            },
+                            "required": [
+                                "ensemblTranscriptId"
+                            ],
+                            "additionalProperties": false
+                        }
+                    }
+                },
+                "required": [
+                    "geneName"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "populationFrequencies": {
+            "description": "Population Frequencies",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "study": {
+                        "description": "Study Name",
+                        "type": "string"
+                    },
+                    "population": {
+                        "description": "Short description of the study population",
+                        "type": "string"
+                    },
+                    "refAllele": {
+                        "description": "The allele in the reference genome",
+                        "type": "string"
+                    },
+                    "altAllele": {
+                        "description": "The alternative allele is the allele found in the sample being studied",
+                        "type": "string"
+                    },
+                    "refAlleleFreq": {
+                        "description": "The relative frequency of an allele at a particular locus in a population",
+                        "type": "number"
+                    },
+                    "altAlleleFreq": {
+                        "description": "The relative frequency of an allele at a particular locus in a population",
+                        "type": "number"
+                    },
+                    "refHomGenotypeFreq": {
+                        "description": "refHomGenotypeFreq",
+                        "type": "number"
+                    },
+                    "hetGenotypeFreq": {
+                        "description": "hetGenotypeFreq",
+                        "type": "number"
+                    },
+                    "altHomGenotypeFreq": {
+                        "description": "altHomGenotypeFreq",
+                        "type": "number"
+                    },
+                    "additionalProperties": false
+                }
+            }
+        },
+        "evidenceEntries": {
+            "description": "Disease Evidence Entry",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "Value used by the reference database to uniquely identify the variant",
+                        "type": "string"
+                    },
+                    "additionalProperties": {
+                        "description": "Key-Value Pair from the Evidence Database",
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "description": "Generic field to capture the key from a reference database",
+                                    "type": "string"
+                                },
+                                "value": {
+                                    "description": "Generic field to capture the value from a reference database",
+                                    "type": "string"
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    },
+                    "somaticInformation": {
+                        "description": "The Somatic Information",
+                        "type": "object",
+                        "properties": {
+                            "primarySite": {
+                                "description": "The Primary Site",
+                                "type": "string"
+                            }
+                        },
+                        "additionalProperties": false
+                    },
+                    "variantClassification": {
+                        "description": "The variant classification",
+                        "type": "object",
+                        "properties": {
+                            "clinicalSignificance": {
+                                "description": "The clinical significance",
+                                "type": "string",
+                                "enum": [
+                                    "benign",
+                                    "likely_benign",
+                                    "VUS",
+                                    "likely_pathogenic",
+                                    "pathogenic",
+                                    "uncertain_significance"
+                                ]
+                            },
+                            "additionalProperties": false
+                        }
+                    },
+                    "source": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "description": "The name of the source",
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "additionalProperties": false
+            }
+        },
+        "sortKeys": {
+            "description": "Denormalised keys used for OpenSearch sorting",
+            "type": "object",
+            "properties": {
+                "sampleVariantAlleleFrequency": {
+                    "description": "Fraction of reads supporting the Alt allele",
+                    "type": "number"
+                },
+                "pairedReadsNumerator": {
+                    "description": "Used for filtering paired reads",
+                    "type": "integer"
+                },
+                "splitReadsNumerator": {
+                    "description": "Used for filtering split reads",
+                    "type": "integer"
+                }
+            }
+        }
+    },
+    "required": [
+        "modelVersion",
+        "variantUID",
+        "sampleType",
+        "variantCategory",
+        "assembly",
+        "chromosome",
+        "start",
+        "end"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+        "confidenceInterval": {
+            "type": "object",
+            "properties": {
+                "left": {
+                    "description": "Left confidence interval",
+                    "type": "integer"
+                },
+                "right": {
+                    "description": "Right confidence interval",
+                    "type": "integer"
+                }
+            },
+            "additionalProperties": false
+        },
+        "filter": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "description": "Filter name",
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        }
+    }
+}
