@@ -1,0 +1,386 @@
+{
+  "mappings": {
+    "properties": {
+      "modelVersion": {
+        "type": "keyword"
+      },
+      "variantUID": {
+        "type": "keyword"
+      },
+      "domain": {
+        "type": "keyword"
+      },
+      "tier": {
+        "type": "keyword"
+      },
+      "sampleType": {
+        "type": "keyword"
+      },
+      "variantCategory": {
+        "type": "keyword"
+      },
+      "qualityScore": {
+        "type": "float"
+      },
+      "TINC": {
+        "type": "keyword"
+      },
+      "assembly": {
+        "type": "keyword"
+      },
+      "chromosome": {
+        "type": "keyword"
+      },
+      "start": {
+        "type": "long"
+      },
+      "end": {
+        "type": "long"
+      },
+      "size": {
+        "type": "long"
+      },
+      "frame": {
+        "type": "keyword"
+      },
+      "smallVariantAllele": {
+        "properties": {
+          "assembly": {
+            "type": "keyword"
+          },
+          "chromosome": {
+            "type": "keyword"
+          },
+          "position": {
+            "type": "long"
+          },
+          "reference": {
+            "type": "keyword"
+          },
+          "alternate": {
+            "type": "keyword"
+          },
+          "alleleType": {
+            "type": "keyword"
+          }
+        }
+      },
+      "structuralVariantAllele": {
+        "properties": {
+          "assembly": {
+            "type": "keyword"
+          },
+          "chromosome": {
+            "type": "keyword"
+          },
+          "start": {
+            "type": "long"
+          },
+          "end": {
+            "type": "long"
+          },
+          "xCoord1Start": {
+            "type": "long"
+          },
+          "xCoord1End": {
+            "type": "long"
+          },
+          "ciStart": {
+            "properties": {
+              "left": {
+                "type": "long"
+              },
+              "right": {
+                "type": "long"
+              }
+            }
+          },
+          "ciEnd": {
+            "properties": {
+              "left": {
+                "type": "long"
+              },
+              "right": {
+                "type": "long"
+              }
+            }
+          },
+          "alleleType": {
+            "type": "keyword"
+          },
+          "numberOfCopies": {
+            "type": "long"
+          },
+          "secondaryAssembly": {
+            "type": "keyword"
+          },
+          "secondaryChromosome": {
+            "type": "keyword"
+          },
+          "secondaryStart": {
+            "type": "long"
+          },
+          "secondaryEnd": {
+            "type": "long"
+          },
+          "xCoord2Start": {
+            "type": "long"
+          },
+          "xCoord2End": {
+            "type": "long"
+          },
+          "secondaryCIStart": {
+            "properties": {
+              "left": {
+                "type": "long"
+              },
+              "right": {
+                "type": "long"
+              }
+            }
+          },
+          "secondaryCIEnd": {
+            "properties": {
+              "left": {
+                "type": "long"
+              },
+              "right": {
+                "type": "long"
+              }
+            }
+          },
+          "orientation": {
+            "type": "keyword"
+          },
+          "cytoband": {
+            "type": "keyword"
+          }
+        }
+      },
+      "sampleVariants": {
+        "type": "nested",
+        "properties": {
+          "sampleID": {
+            "type": "keyword"
+          },
+          "zygosity": {
+            "type": "keyword"
+          },
+          "depthTotal": {
+            "type": "long"
+          },
+          "depthReference": {
+            "type": "long"
+          },
+          "depthAlternate": {
+            "type": "long"
+          },
+          "sampleVariantAlleleFrequency": {
+            "type": "float"
+          },
+          "pairedRead": {
+            "type": "keyword"
+          },
+          "splitRead": {
+            "type": "keyword"
+          }
+        }
+      },
+      "GELFilters": {
+        "type": "nested",
+        "properties": {
+          "name": {
+            "type": "keyword"
+          }
+        }
+      },
+      "VCFFilters": {
+        "type": "nested",
+        "properties": {
+          "name": {
+            "type": "keyword"
+          }
+        }
+      },
+      "genes": {
+        "type": "nested",
+        "properties": {
+          "ensemblGeneId": {
+            "type": "keyword"
+          },
+          "geneName": {
+            "type": "keyword"
+          },
+          "displayGene": {
+            "type": "boolean"
+          },
+          "domain": {
+            "type": "keyword"
+          },
+          "tier": {
+            "type": "keyword"
+          },
+          "modeOfAction": {
+            "type": "keyword"
+          },
+          "cancerGeneCensus": {
+            "type": "boolean"
+          },
+          "natTestDir": {
+            "type": "boolean"
+          },
+          "genePanels": {
+            "type": "nested",
+            "properties": {
+              "panelIdentifier": {
+                "type": "keyword"
+              },
+              "panelName": {
+                "type": "keyword"
+              },
+              "panelGroup": {
+                "type": "keyword"
+              },
+              "panelVersion": {
+                "type": "keyword"
+              },
+              "source": {
+                "type": "keyword"
+              },
+              "rating": {
+                "type": "long"
+              }
+            }
+          },
+          "transcripts": {
+            "type": "nested",
+            "properties": {
+              "ensemblTranscriptId": {
+                "type": "keyword"
+              },
+              "ensemblProteinId": {
+                "type": "keyword"
+              },
+              "displayTranscript": {
+                "type": "boolean"
+              },
+              "hgvsc": {
+                "type": "keyword"
+              },
+              "hgvsp": {
+                "type": "keyword"
+              },
+              "impactedRegion": {
+                "type": "keyword"
+              },
+              "biotype": {
+                "type": "keyword"
+              },
+              "consequence": {
+                "type": "nested",
+                "properties": {
+                  "name": {
+                    "type": "keyword"
+                  }
+                }
+              },
+              "exonOverlap": {
+                "type": "nested",
+                "properties": {
+                  "number": {
+                    "type": "keyword"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "populationFrequencies": {
+        "type": "nested",
+        "properties": {
+          "study": {
+            "type": "keyword"
+          },
+          "population": {
+            "type": "keyword"
+          },
+          "refAllele": {
+            "type": "keyword"
+          },
+          "altAllele": {
+            "type": "keyword"
+          },
+          "refAlleleFreq": {
+            "type": "float"
+          },
+          "altAlleleFreq": {
+            "type": "float"
+          },
+          "refHomGenotypeFreq": {
+            "type": "float"
+          },
+          "hetGenotypeFreq": {
+            "type": "float"
+          },
+          "altHomGenotypeFreq": {
+            "type": "float"
+          }
+        }
+      },
+      "evidenceEntries": {
+        "type": "nested",
+        "properties": {
+          "id": {
+            "type": "keyword"
+          },
+          "additionalProperties": {
+            "type": "nested",
+            "properties": {
+              "name": {
+                "type": "keyword"
+              },
+              "value": {
+                "type": "keyword"
+              }
+            }
+          },
+          "somaticInformation": {
+            "properties": {
+              "primarySite": {
+                "type": "keyword"
+              }
+            }
+          },
+          "variantClassification": {
+            "properties": {
+              "clinicalSignificance": {
+                "type": "keyword"
+              }
+            }
+          },
+          "source": {
+            "properties": {
+              "name": {
+                "type": "keyword"
+              }
+            }
+          }
+        }
+      },
+      "sortKeys": {
+        "properties": {
+          "sampleVariantAlleleFrequency": {
+            "type": "float"
+          },
+          "pairedReadsNumerator": {
+            "type": "long"
+          },
+          "splitReadsNumerator": {
+            "type": "long"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,40 @@
+[project]
+name = "jsonschematomappings"
+version = "0.0.1"
+authors = [
+  { name="William McLaren" },
+]
+description = "Converts JSON schema to OpenSearch/ElasticSearch mappings"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GPL3 License",
+    "Operating System :: OS Independent",
+]
+dynamic = ["dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements/requirements.txt"]}
+
+[project.urls]
+"Homepage" = "https://github.com/willmclaren/json-schema-to-mappings"
+"Bug Tracker" = "https://github.com/willmclaren/json-schema-to-mappings/issues"
+
+[project.scripts]
+jsonschematomappings = "json_schema_to_mappings:main"
+
+[tool.isort]
+profile = "black"
+
+[tool.mypy]
+python_version = 3.8
+
+[[tool.mypy.overrides]]
+module = [
+    'fastjsonschema',
+    'deepdiff',
+    'pytest',
+    'setuptools',
+]
+ignore_missing_imports = true
