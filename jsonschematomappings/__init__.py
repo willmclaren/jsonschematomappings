@@ -2,6 +2,7 @@ import argparse
 import json
 from collections.abc import Mapping
 from functools import cached_property
+from pathlib import Path
 from typing import Any, Dict, Optional, Union
 
 import fastjsonschema
@@ -15,8 +16,11 @@ JS_ARRAY_TYPE = "array"
 JS_DEFS_KEY = "$defs"
 JS_ID_KEY = "$id"
 JS_REF_KEY = "$ref"
+JS_ANY_OF_KEY = "anyOf"
 JS_DEF_REPLACE = "#/$defs/"
+JS_DEFAULT_KEY = "default"
 JS_ADDITIONAL_PROPERTIES_KEY = "additionalProperties"
+null = "null"
 
 # OpenSearch/Elasticsearch constants
 OS_MAPPINGS_KEY = "mappings"
@@ -24,12 +28,20 @@ OS_PROPERTIES_KEY = "properties"
 OS_TYPE_KEY = "type"
 OS_NESTED_KEY = "nested"
 
+# helper key to handle anyOf with multiple not-null types
+OS_MULTI_TYPE_KEY = "multi_type"
+
 TYPE_MAP = {
     "boolean": "boolean",
-    "float": "float",
-    "number": "float",
+    "float": "double",  # we want to use double instead of float
+    "number": "double",  # we want to use double instead of float
     "integer": "long",
     "string": "keyword",
+    # In case of multiple not-null types, we map to keyword
+    "multi_type": "keyword",
+    # In case of types reflected as empty dict in schema, we assume a field with Any annotation
+    # which is being used to signalize, that text OS type is desired
+    "es_text": "text",
 }
 
 
@@ -43,9 +55,7 @@ class JSONSchemaToMappings:
     OpenSearch/ElasticSearch mappings document
     """
 
-    def __init__(
-        self, json_schema: Union[str, Dict], template: Optional[Union[str, Dict]] = None
-    ):
+    def __init__(self, json_schema: Union[str, Dict], template: Optional[Union[str, Dict]] = None):
         """
         Init method for conversion class
 
@@ -70,13 +80,7 @@ class JSONSchemaToMappings:
         :return: mappings dict
         :rtype: Dict
         """
-        mappings = {
-            OS_MAPPINGS_KEY: {
-                OS_PROPERTIES_KEY: self._convert_property(
-                    self.json_schema[JS_PROPERTIES_KEY]
-                )
-            }
-        }
+        mappings = {OS_MAPPINGS_KEY: {OS_PROPERTIES_KEY: self._convert_property(self.json_schema[JS_PROPERTIES_KEY])}}
 
         # merge template
         return self._update_dict(self.template, mappings)
@@ -150,9 +154,7 @@ class JSONSchemaToMappings:
         try:
             expanded = {**o, **self._defs[ref_key]}
         except KeyError:
-            raise SchemaParsingException(
-                f"Unable to find definition for reference '{ref_key}'"
-            )
+            raise SchemaParsingException(f"Unable to find definition for reference '{ref_key}'")
         del expanded[JS_REF_KEY]
         return expanded
 
@@ -171,6 +173,25 @@ class JSONSchemaToMappings:
             else:
                 d[k] = v
         return d
+
+    def _extract_union(self, o) -> Dict[str, Any]:
+        """
+        Extracts a list of objects from a union
+
+        :param o: dict/object to convert
+        :type o: Dict
+        :return: list of union objects
+        :rtype: List
+        """
+        not_null_types = [item for item in o[JS_ANY_OF_KEY] if item.get("type") != null]
+
+        match len(not_null_types):
+            case 0:
+                raise SchemaParsingException(f"Invalid schema, multiple types defined in anyOf: {json.dumps(not_null_types)}")
+            case 1:
+                return not_null_types[0]
+            case _:
+                return {"type": "multi_type"}
 
     def _convert_property(self, o) -> Dict[str, Any]:
         """
@@ -191,28 +212,28 @@ class JSONSchemaToMappings:
             if k == JS_ADDITIONAL_PROPERTIES_KEY and isinstance(o[k], bool):
                 continue
 
+            # unwrap union type
+            if JS_ANY_OF_KEY in o[k]:
+                o[k] = self._extract_union(o[k])
+
             # expand definition if ref is present
             if JS_REF_KEY in o[k]:
                 o[k] = self._expand_def(o[k])
 
-            # get type of this property
             t = o[k].get(JS_TYPE_KEY)
             if t is None:
-                raise SchemaParsingException(
-                    "Invalid schema, "
-                    f"object missing type key '{JS_TYPE_KEY}': {json.dumps(o[k])}"
-                )
+                if o[k].get(JS_DEFAULT_KEY) in (null, None):
+                    t = "es_text"
+                else:
+                    raise SchemaParsingException("Invalid schema, " f"object missing type key '{JS_TYPE_KEY}': {json.dumps(o[k])}")
 
             # object type (dict) - recurse
             if t == JS_OBJECT_TYPE:
-                converted[k] = {
-                    OS_PROPERTIES_KEY: self._convert_property(o=o[k][JS_PROPERTIES_KEY])
-                }
+                converted[k] = {OS_PROPERTIES_KEY: self._convert_property(o=o[k][JS_PROPERTIES_KEY])}
 
             # array/list type
             elif t == JS_ARRAY_TYPE:
                 converted[k] = self._convert_array(o[k])
-
             # element type e.g. string, integer
             elif t in TYPE_MAP:
                 converted[k] = {OS_TYPE_KEY: TYPE_MAP[t]}
@@ -230,39 +251,42 @@ class JSONSchemaToMappings:
         converted: Dict[str, Any] = {}
 
         if JS_ITEMS_KEY not in arr:
-            raise SchemaParsingException(
-                f"Invalid schema, {JS_ARRAY_TYPE} type missing "
-                f"{JS_ITEMS_KEY} key: {arr}"
-            )
+            raise SchemaParsingException(f"Invalid schema, {JS_ARRAY_TYPE} type missing " f"{JS_ITEMS_KEY} key: {arr}")
 
         # expand object described under items key
         if JS_REF_KEY in arr[JS_ITEMS_KEY]:
             arr[JS_ITEMS_KEY] = self._expand_def(arr[JS_ITEMS_KEY])
 
+        # unwrap union type
+        if JS_ANY_OF_KEY in arr:
+            arr = self._extract_union(arr)
+
+        # unwrap union type of array items
+        if JS_ANY_OF_KEY in arr[JS_ITEMS_KEY]:
+            arr[JS_ITEMS_KEY] = self._extract_union(arr[JS_ITEMS_KEY])
+
         # get type of array items
         at = arr[JS_ITEMS_KEY].get(JS_TYPE_KEY)
         if at is None:
-            raise SchemaParsingException(
-                f"Invalid schema, {JS_ARRAY_TYPE} items object missing "
-                f"{JS_TYPE_KEY} key '{JS_TYPE_KEY}': "
-                f"{json.dumps(arr[JS_ITEMS_KEY])}"
-            )
+            # if the array items are empty, it is assumed to be a field annotated with typing.Any
+            if isinstance(arr[JS_ITEMS_KEY], dict) and not arr[JS_ITEMS_KEY]:
+                at = "es_text"
+            else:
+                raise SchemaParsingException(
+                    f"Invalid schema, {JS_ARRAY_TYPE} items object missing " f"{JS_TYPE_KEY} key '{JS_TYPE_KEY}': " f"{json.dumps(arr[JS_ITEMS_KEY])}"
+                )
 
         # if array items are themselves objects, mark as nested and recurse
         if at == JS_OBJECT_TYPE:
             converted[OS_TYPE_KEY] = OS_NESTED_KEY
-            converted[OS_PROPERTIES_KEY] = self._convert_property(
-                arr[JS_ITEMS_KEY][JS_PROPERTIES_KEY]
-            )
+            converted[OS_PROPERTIES_KEY] = self._convert_property(arr[JS_ITEMS_KEY][JS_PROPERTIES_KEY])
         # if array items are elements, OS/ES does not denote this
         elif at in TYPE_MAP:
             converted[OS_TYPE_KEY] = TYPE_MAP[at]
-        # TODO: deal with nested lists
+        elif at == "array":
+            return self._convert_array(arr[JS_ITEMS_KEY])
         else:
-            raise SchemaParsingException(
-                f"Unable to parse type '{at}' within {JS_ARRAY_TYPE}: "
-                f"{arr[JS_ITEMS_KEY]}"
-            )
+            raise SchemaParsingException(f"Unable to parse type '{at}' within {JS_ARRAY_TYPE}: " f"{arr[JS_ITEMS_KEY]}")
 
         return converted
 
@@ -273,30 +297,41 @@ def main():
     """
     args = process_arguments()
 
-    mappings = jsonschematomappings(args.json_schema[0], args.template)
+    mappings_dict = get_mappings(args.json_schema[0], args.template)
 
-    print(json.dumps(mappings, indent=2))
+    from pprint import PrettyPrinter
+
+    pp = PrettyPrinter(indent=2)
+    pp.pprint(mappings_dict)
+
+
+def debug():
+    # https://github.com/willmclaren/jsonschematomappings
+    with (Path(__file__).parent / "schema.json").open() as f:
+        schema_dict = json.load(f)
+
+    mappings = get_mappings(json_schema=schema_dict, template=None)
+    with (Path(__file__).parent / "mappings.json").open("w") as f:
+        json.dump(mappings, f, indent=2)
+
+    from pprint import PrettyPrinter
+
+    pp = PrettyPrinter(indent=2)
+    pp.pprint(mappings)
 
 
 def process_arguments():
     """
     Define command line inputs
     """
-    parser = argparse.ArgumentParser(
-        description=(
-            "Convert a JSON schema document to an "
-            "OpenSearch/ElasticSearch mappings document"
-        )
-    )
+    parser = argparse.ArgumentParser(description="Convert a JSON schema document to an OpenSearch/ElasticSearch mappings document")
     # Define the arguments that will be taken.
     parser.add_argument("json_schema", nargs=1, help="JSON schema document")
     parser.add_argument("--template", type=str, help="Template mappings document")
     return parser.parse_args()
 
 
-def jsonschematomappings(
-    json_schema: Union[str, Dict], template: Optional[Union[str, Dict]] = None
-) -> Dict[str, Any]:
+def get_mappings(json_schema: Union[str, Dict], template: Optional[Union[str, Dict]] = None) -> Dict[str, Any]:
     """
     Wrapper method for functional users.
     Convert JSON schema to an OpenSearch/ElasticSearch mappings document.
@@ -308,7 +343,7 @@ def jsonschematomappings(
     :return: mappings dict
     :rtype: Dict
     """
-    return JSONSchemaToMappings(json_schema, template).to_mappings()
+    return JSONSchemaToMappings(json_schema, template).to_mappings()["mappings"]["properties"]
 
 
 if __name__ == "__main__":
