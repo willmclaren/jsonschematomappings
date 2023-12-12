@@ -262,6 +262,10 @@ def test__update_dict(d, u, r):
             {"name": {"properties": {"subprop": {"type": "keyword"}}}},
         ),
         (
+            {"name": {"type": "object"}},
+            {"name": {"type": "object"}},
+        ),
+        (
             {
                 "name": {
                     "type": "array",

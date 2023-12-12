@@ -30,6 +30,7 @@ TYPE_MAP = {
     "number": "float",
     "integer": "long",
     "string": "keyword",
+    "object": "object",
 }
 
 
@@ -204,7 +205,7 @@ class JSONSchemaToMappings:
                 )
 
             # object type (dict) - recurse
-            if t == JS_OBJECT_TYPE:
+            if t == JS_OBJECT_TYPE and JS_PROPERTIES_KEY in o[k]:
                 converted[k] = {
                     OS_PROPERTIES_KEY: self._convert_property(o=o[k][JS_PROPERTIES_KEY])
                 }
